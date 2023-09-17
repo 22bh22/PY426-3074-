@@ -41,12 +41,17 @@ class Day:
     а для записи в сам файл быи использован метод as_json,
     создаст экземпляр объекта день.
     Здесь cls - это класс Day"""
-    # if PowerExercise.x_type == 'PowerExercise':
-    #   pass
-    # elif CardioExercise.x_type == 'CardioExercise':
-    #   pass
     date_at_isostr = json_dict['date_at']
     date_at = datetime.fromisoformat(date_at_isostr).date()
-    exercises = [PowerExercise.from_json(ex_json) for ex_json in json_dict['exercises']]
+    #exercises = [PowerExercise.from_json(ex_json) for ex_json in json_dict['exercises']]
+    exercises = []
+    for x_json in json_dict['exercises']:
+      if json_dict['x_type'] == PowerExercise.x_type:
+        x_class = PowerExercise
+      elif json_dict['x_type'] == CardioExercise.x_type:
+        x_class = CardioExercise
+      else:
+        print('Указан неизвестный тип упражнения', json_dict['x_type'])
+      exercises.append(x_class.from_json(x_json))
     return cls(date_at=date_at, exercises=exercises)
   
