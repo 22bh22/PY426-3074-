@@ -46,6 +46,7 @@ class Day:
     #exercises = [PowerExercise.from_json(ex_json) for ex_json in json_dict['exercises']]
     exercises = []
     for x_json in json_dict['exercises']:
+      print(json_dict)
       if json_dict['type'] == PowerExercise.type:
         x_class = PowerExercise
       elif json_dict['type'] == CardioExercise.type:
