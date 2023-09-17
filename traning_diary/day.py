@@ -46,12 +46,12 @@ class Day:
     #exercises = [PowerExercise.from_json(ex_json) for ex_json in json_dict['exercises']]
     exercises = []
     for x_json in json_dict['exercises']:
-      if json_dict['x_type'] == PowerExercise.x_type:
+      if json_dict['type'] == PowerExercise.type:
         x_class = PowerExercise
-      elif json_dict['x_type'] == CardioExercise.x_type:
+      elif json_dict['type'] == CardioExercise.type:
         x_class = CardioExercise
       else:
-        print('Указан неизвестный тип упражнения', json_dict['x_type'])
-      exercises.append(x_class.from_json(x_json))
+        print('Указан неизвестный тип упражнения', json_dict['type'])
+      exercises.append(x_class.from_json(json))
     return cls(date_at=date_at, exercises=exercises)
   
