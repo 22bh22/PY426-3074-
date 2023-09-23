@@ -1,4 +1,5 @@
 ## -*- coding: utf-8 -*-
+#main.py
 """
 Хотим добавлять упраженения с помощью команды
 python traning_diary add_day приседания 100 10 3
@@ -36,11 +37,12 @@ def add_day(*args):
         reps=int(args[4]),
       )
     elif args[0] == 'cardio':
+        
         exercise = CardioExercise(
         type=args[0],
         name=args[1],
-        x_distance=args[2],
-        x_time=args[3]
+        distance=args[2],
+        time=args[3]
       )
     elif args[0] == 'crossfit':
           pass
