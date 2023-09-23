@@ -1,65 +1,66 @@
-from datetime import date, datetime
+#diary.py
+import os
+import json
 
-from exercises import PowerExercise, CardioExercise
+from day import Day
+from utils import get_map_from_list
 
 
-class Day:
+class Diary:
+  user = 'Roman'
+  # file_path = os.path.join(os.path.abspath(__file__), 'files', 'exersices.json')
+  file_path = 'exercises.json'
 
-  def __init__(self, date_at=None, exercises=[]):
-    self.date_at = date_at or date.today() # Текущий день
-    self.exercises = exercises
+  def __init__(self):
+    days = []
+    json_days = self.load_days_from_json()
+    for json_day in json_days:
+      day = Day.from_json(json_day)
+      days.append(day)
+    self.days = days
 
-  def __str__(self):
-    return self.date_at.isoformat()
+  def print_days(self):
+    """Задать отображение самого дневника, 
+    а отображение отдельных дней делегировать им самим."""
+    # Распечатать информацию о дневнике, например заголовок с именем юзера
+    title_str = f"Дневник тренировок для {self.user}"
+    border = '-' * len(title_str)
+    print(border)
+    print(title_str)
+    print(border)
+    days_by_date = get_map_from_list(
+      self.days, 
+      lambda day: day.date_at
+    )
+    days_str = []
+    for date_at, days in days_by_date.items():
+      date_at_str = date_at.isoformat()
+      for num, day in enumerate(days):
+        if num == 0:
+            days_str.append(f"{date_at_str}: {day.as_print_str()}")
+        else:
+          days_str.append(f"{' '*len(date_at_str)}: {day.as_print_str()}")
+    print('\n'.join(days_str))
 
-  def print_day(self):
-    """Распечатать день."""
-    print(f'Распечатать день и упражнения, {self.date_at}')
-    for exercise in self.exercises:
-      # exercise.print_ex()
-      print(exercise)
+  def add_day(self, day : Day):     #43
+    """Добавить день в дневник, возможно понадобится более сложная логика, 
+    но пока просто добавим в список.
+    Здесь day - это экземпляр объекта Day"""
+    print(f'Добавлен день: {day}')
+    self.days.append(day)
+    self.dump_days_to_json()
 
-  def as_print_str(self):
-    exercises_str = [str(exercise) for exercise in self.exercises]
-    k = 0
-    for ex in exercises_str:
-      print(ex)
-      if len(ex) > k:
-        k = len(ex)
-    border = '-' * (k + 15)
-    #border = '-' * max([len(ex) for ex in exercises_str])
-    return f'\n'.join(exercises_str) + f'\n{border}'
-      
-  def add_exercise(self, exercise):
-    """Добавление упражнения для конкретного дня."""
-    print(f'Добавить упраженение {exercise}')
-    self.exercises.append(exercise)
+  def dump_days_to_json(self):
+    json_days = [tr_day.as_json() for tr_day in self.days]
+    with open(self.file_path, 'w', encoding='windows-1252') as fp:
+      json.dump(json_days, fp, ensure_ascii=True, indent=4)
 
-  def as_json(self):
-    return {
-      'date_at': self.date_at.isoformat(),
-      'exercises': [ex.as_json() for ex in self.exercises]
-    }
-  
-  @classmethod
-  def from_json(cls, json_dict):
-    """Фабричный метод который на основе данных из json-файла,
-    а для записи в сам файл быи использован метод as_json,
-    создаст экземпляр объекта день.
-    Здесь cls - это класс Day"""
-    date_at_isostr = json_dict['date_at']
-    date_at = datetime.fromisoformat(date_at_isostr).date()
-    #exercises = [PowerExercise.from_json(ex_json) for ex_json in json_dict['exercises']]
-    exercises = []
-    x_class = ''
-    for x_json in json_dict['exercises']:
-      if json_dict['exercises'][0]['type'] == PowerExercise.x_user_type:
-        x_class = PowerExercise
-      elif json_dict['exercises'][0]['type'] == CardioExercise.x_user_type:
-        x_class = CardioExercise
-      else:
-        print('Указан неизвестный тип упражнения', json_dict['exercises'][0]['type'])
-      if len(str(x_class)) > 0:
-        exercises.append(x_class.from_json(x_json))
-    return cls(date_at=date_at, exercises=exercises)
-  
+  def load_days_from_json(self):
+    """Загрузить дни из файла."""
+    print(f"{self.file_path=}")
+    try:
+      with open(self.file_path, 'r', encoding='windows-1252') as fp:
+        days = json.load(fp)
+    except FileNotFoundError:
+      return []
+    return days
